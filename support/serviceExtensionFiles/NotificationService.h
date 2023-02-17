@@ -1,5 +1,5 @@
 //  NotificationService.h
-//  OneSignalNotificationServiceExtension
+//  FBNotificationServiceExtension
 
 #import <UserNotifications/UserNotifications.h>
 
