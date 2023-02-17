@@ -53,6 +53,6 @@ export type PluginOptions = {
 };
 
 export enum Mode {
-  Dev = "development",
-  Prod = "production",
+  Dev = 'development',
+  Prod = 'production',
 }
