@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/OneSignal/onesignal-expo-plugin.git"
+    "url": "git+https://github.com/ahmtshn/expo-ios-pn-image.git"
   },
   "keywords": [
     "expo",
@@ -29,9 +29,9 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/OneSignal/onesignal-expo-plugin/issues"
+    "url": "https://github.com/ahmtshn/expo-ios-pn-image/issues"
   },
-  "homepage": "https://github.com/OneSignal/onesignal-expo-plugin#readme",
+  "homepage": "https://github.com/ahmtshn/expo-ios-pn-image#readme",
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.10.1",
     "@typescript-eslint/parser": "^5.10.1",
