@@ -22,10 +22,10 @@ import { updatePodfile } from "../support/updatePodfile";
 import NseUpdaterManager from "../support/NseUpdaterManager";
 import { OneSignalLog } from "../support/OneSignalLog";
 import { FileManager } from "../support/FileManager";
-import type { OneSignalPluginProps, PluginOptions } from "../types/types";
+import { OneSignalPluginProps, PluginOptions } from "../types/types";
 import assert from "assert";
 import getEasManagedCredentialsConfigExtra from "../support/eas/getEasManagedCredentialsConfigExtra";
-import type { ExpoConfig } from "@expo/config-types";
+import { ExpoConfig } from "@expo/config-types";
 
 /**
  * Add 'aps-environment' record with current environment to '<project-name>.entitlements' file
@@ -81,7 +81,6 @@ const withAppGroupPermissions: ConfigPlugin<OneSignalPluginProps> = (
     if (!Array.isArray(newConfig.modResults[APP_GROUP_KEY])) {
       newConfig.modResults[APP_GROUP_KEY] = [];
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const modResultsArray = newConfig.modResults[APP_GROUP_KEY] as Array<any>;
     const entitlement = `group.${
       newConfig?.ios?.bundleIdentifier || ""
