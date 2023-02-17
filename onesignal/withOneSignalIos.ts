@@ -28,26 +28,6 @@ import getEasManagedCredentialsConfigExtra from "../support/eas/getEasManagedCre
 import { ExpoConfig } from "@expo/config-types";
 
 /**
- * Add 'aps-environment' record with current environment to '<project-name>.entitlements' file
- * @see https://documentation.onesignal.com/docs/react-native-sdk-setup#step-4-install-for-ios-using-cocoapods-for-ios-apps
- */
-const withAppEnvironment: ConfigPlugin<OneSignalPluginProps> = (
-  config,
-  onesignalProps
-) => {
-  return withEntitlementsPlist(config, (newConfig) => {
-    if (onesignalProps?.mode == null) {
-      throw new Error(`
-        Missing required "mode" key in your app.json or app.config.js file for "onesignal-expo-plugin".
-        "mode" can be either "development" or "production".
-        Please see onesignal-expo-plugin's README.md for more details.`);
-    }
-    newConfig.modResults["aps-environment"] = onesignalProps.mode;
-    return newConfig;
-  });
-};
-
-/**
  * Add "Background Modes -> Remote notifications" and "App Group" permissions
  * @see https://documentation.onesignal.com/docs/react-native-sdk-setup#step-4-install-for-ios-using-cocoapods-for-ios-apps
  */
@@ -142,7 +122,6 @@ export const withOneSignalIos: ConfigPlugin<OneSignalPluginProps> = (
   config,
   props
 ) => {
-  withAppEnvironment(config, props);
   withRemoteNotificationsPermissions(config, props);
   withAppGroupPermissions(config, props);
   withOneSignalNSE(config, props);
@@ -173,11 +152,7 @@ export function xcodeProjectAddNse(
   const projPath = `${iosPath}/${appName}.xcodeproj/project.pbxproj`;
 
   const sourceFile = "NotificationService.m";
-  const extFiles = [
-    "NotificationService.h",
-    `${NSE_TARGET_NAME}.entitlements`,
-    `${NSE_TARGET_NAME}-Info.plist`,
-  ];
+  const extFiles = ["NotificationService.h", `${NSE_TARGET_NAME}-Info.plist`];
 
   const xcodeProject = xcode.project(projPath);
 
@@ -203,9 +178,7 @@ export function xcodeProjectAddNse(
 
     /* MODIFY COPIED EXTENSION FILES */
     const nseUpdater = new NseUpdaterManager(iosPath);
-    await nseUpdater.updateNSEEntitlements(
-      `group.${bundleIdentifier}.onesignal`
-    );
+
     await nseUpdater.updateNSEBundleVersion(
       bundleVersion ?? DEFAULT_BUNDLE_VERSION
     );
@@ -289,7 +262,6 @@ export function xcodeProjectAddNse(
         buildSettingsObj.IPHONEOS_DEPLOYMENT_TARGET =
           iPhoneDeploymentTarget ?? IPHONEOS_DEPLOYMENT_TARGET;
         buildSettingsObj.TARGETED_DEVICE_FAMILY = TARGETED_DEVICE_FAMILY;
-        buildSettingsObj.CODE_SIGN_ENTITLEMENTS = `${NSE_TARGET_NAME}/${NSE_TARGET_NAME}.entitlements`;
         buildSettingsObj.CODE_SIGN_STYLE = "Automatic";
       }
     }
