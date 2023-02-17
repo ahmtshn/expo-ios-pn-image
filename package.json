@@ -51,6 +51,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
+    "expo-module-scripts": "^2.0.0",
     "@evilmartians/lefthook": "^1.2.2",
     "@react-native-community/eslint-config": "^3.0.2",
     "@release-it/conventional-changelog": "^5.0.0",
@@ -75,7 +76,9 @@
   },
   "peerDependencies": {
     "react": "*",
-    "react-native": "*"
+    "react-native": "*",
+    "xcode": "^3.0.1",
+    "@expo/image-utils": "^0.3.22"
   },
   "engines": {
     "node": ">= 16.0.0"
