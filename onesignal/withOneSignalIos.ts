@@ -8,24 +8,24 @@ import {
   withEntitlementsPlist,
   withInfoPlist,
   withXcodeProject,
-} from '@expo/config-plugins';
-import * as fs from 'fs';
-import xcode from 'xcode';
+} from "@expo/config-plugins";
+import * as fs from "fs";
+import xcode from "xcode";
 import {
   DEFAULT_BUNDLE_SHORT_VERSION,
   DEFAULT_BUNDLE_VERSION,
   IPHONEOS_DEPLOYMENT_TARGET,
   NSE_TARGET_NAME,
   TARGETED_DEVICE_FAMILY,
-} from '../support/iosConstants';
-import { updatePodfile } from '../support/updatePodfile';
-import NseUpdaterManager from '../support/NseUpdaterManager';
-import { OneSignalLog } from '../support/OneSignalLog';
-import { FileManager } from '../support/FileManager';
-import type { OneSignalPluginProps, PluginOptions } from '../types/types';
-import assert from 'assert';
-import getEasManagedCredentialsConfigExtra from '../support/eas/getEasManagedCredentialsConfigExtra';
-import type { ExpoConfig } from '@expo/config-types';
+} from "../support/iosConstants";
+import { updatePodfile } from "../support/updatePodfile";
+import NseUpdaterManager from "../support/NseUpdaterManager";
+import { OneSignalLog } from "../support/OneSignalLog";
+import { FileManager } from "../support/FileManager";
+import type { OneSignalPluginProps, PluginOptions } from "../types/types";
+import assert from "assert";
+import getEasManagedCredentialsConfigExtra from "../support/eas/getEasManagedCredentialsConfigExtra";
+import type { ExpoConfig } from "@expo/config-types";
 
 /**
  * Add 'aps-environment' record with current environment to '<project-name>.entitlements' file
@@ -42,7 +42,7 @@ const withAppEnvironment: ConfigPlugin<OneSignalPluginProps> = (
         "mode" can be either "development" or "production".
         Please see onesignal-expo-plugin's README.md for more details.`);
     }
-    newConfig.modResults['aps-environment'] = onesignalProps.mode;
+    newConfig.modResults["aps-environment"] = onesignalProps.mode;
     return newConfig;
   });
 };
@@ -54,7 +54,7 @@ const withAppEnvironment: ConfigPlugin<OneSignalPluginProps> = (
 const withRemoteNotificationsPermissions: ConfigPlugin<OneSignalPluginProps> = (
   config
 ) => {
-  const BACKGROUND_MODE_KEYS = ['remote-notification'];
+  const BACKGROUND_MODE_KEYS = ["remote-notification"];
   return withInfoPlist(config, (newConfig) => {
     if (!Array.isArray(newConfig.modResults.UIBackgroundModes)) {
       newConfig.modResults.UIBackgroundModes = [];
@@ -76,14 +76,15 @@ const withRemoteNotificationsPermissions: ConfigPlugin<OneSignalPluginProps> = (
 const withAppGroupPermissions: ConfigPlugin<OneSignalPluginProps> = (
   config
 ) => {
-  const APP_GROUP_KEY = 'com.apple.security.application-groups';
+  const APP_GROUP_KEY = "com.apple.security.application-groups";
   return withEntitlementsPlist(config, (newConfig) => {
     if (!Array.isArray(newConfig.modResults[APP_GROUP_KEY])) {
       newConfig.modResults[APP_GROUP_KEY] = [];
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const modResultsArray = newConfig.modResults[APP_GROUP_KEY] as Array<any>;
     const entitlement = `group.${
-      newConfig?.ios?.bundleIdentifier || ''
+      newConfig?.ios?.bundleIdentifier || ""
     }.onesignal`;
     if (modResultsArray.indexOf(entitlement) !== -1) {
       return newConfig;
@@ -112,15 +113,15 @@ const withOneSignalNSE: ConfigPlugin<OneSignalPluginProps> = (
 
     // support for monorepos where node_modules can be up to 5 parents
     // above the project directory.
-    let dir = 'node_modules';
+    let dir = "node_modules";
     for (let x = 0; x < 5 && !FileManager.dirExists(dir); x++) {
-      dir = '../' + dir;
+      dir = "../" + dir;
     }
 
     xcodeProjectAddNse(
-      props.modRequest.projectName || '',
+      props.modRequest.projectName || "",
       options,
-      dir + '/onesignal-expo-plugin/build/support/serviceExtensionFiles/'
+      dir + "/onesignal-expo-plugin/build/support/serviceExtensionFiles/"
     );
 
     return props;
@@ -172,9 +173,9 @@ export function xcodeProjectAddNse(
 
   const projPath = `${iosPath}/${appName}.xcodeproj/project.pbxproj`;
 
-  const sourceFile = 'NotificationService.m';
+  const sourceFile = "NotificationService.m";
   const extFiles = [
-    'NotificationService.h',
+    "NotificationService.h",
     `${NSE_TARGET_NAME}.entitlements`,
     `${NSE_TARGET_NAME}-Info.plist`,
   ];
@@ -222,7 +223,7 @@ export function xcodeProjectAddNse(
 
     // Add the new PBXGroup to the top level group. This makes the
     // files / folder appear in the file explorer in Xcode.
-    const groups = xcodeProject.hash.project.objects['PBXGroup'];
+    const groups = xcodeProject.hash.project.objects["PBXGroup"];
     Object.keys(groups).forEach(function (key) {
       if (groups[key].name === undefined) {
         xcodeProject.addToPbxGroup(extGroup.uuid, key);
@@ -234,10 +235,10 @@ export function xcodeProjectAddNse(
     // An upstream fix should be made to the code referenced in this link:
     //   - https://github.com/apache/cordova-node-xcode/blob/8b98cabc5978359db88dc9ff2d4c015cba40f150/lib/pbxProject.js#L860
     const projObjects = xcodeProject.hash.project.objects;
-    projObjects['PBXTargetDependency'] =
-      projObjects['PBXTargetDependency'] || {};
-    projObjects['PBXContainerItemProxy'] =
-      projObjects['PBXTargetDependency'] || {};
+    projObjects["PBXTargetDependency"] =
+      projObjects["PBXTargetDependency"] || {};
+    projObjects["PBXContainerItemProxy"] =
+      projObjects["PBXTargetDependency"] || {};
 
     if (!!xcodeProject.pbxTargetByName(NSE_TARGET_NAME)) {
       OneSignalLog.log(
@@ -250,29 +251,29 @@ export function xcodeProjectAddNse(
     // This adds PBXTargetDependency and PBXContainerItemProxy for you
     const nseTarget = xcodeProject.addTarget(
       NSE_TARGET_NAME,
-      'app_extension',
+      "app_extension",
       NSE_TARGET_NAME,
       `${bundleIdentifier}.${NSE_TARGET_NAME}`
     );
 
     // Add build phases to the new target
     xcodeProject.addBuildPhase(
-      ['NotificationService.m'],
-      'PBXSourcesBuildPhase',
-      'Sources',
+      ["NotificationService.m"],
+      "PBXSourcesBuildPhase",
+      "Sources",
       nseTarget.uuid
     );
     xcodeProject.addBuildPhase(
       [],
-      'PBXResourcesBuildPhase',
-      'Resources',
+      "PBXResourcesBuildPhase",
+      "Resources",
       nseTarget.uuid
     );
 
     xcodeProject.addBuildPhase(
       [],
-      'PBXFrameworksBuildPhase',
-      'Frameworks',
+      "PBXFrameworksBuildPhase",
+      "Frameworks",
       nseTarget.uuid
     );
 
@@ -281,7 +282,7 @@ export function xcodeProjectAddNse(
     const configurations = xcodeProject.pbxXCBuildConfigurationSection();
     for (const key in configurations) {
       if (
-        typeof configurations[key].buildSettings !== 'undefined' &&
+        typeof configurations[key].buildSettings !== "undefined" &&
         configurations[key].buildSettings.PRODUCT_NAME == `"${NSE_TARGET_NAME}"`
       ) {
         const buildSettingsObj = configurations[key].buildSettings;
@@ -290,13 +291,13 @@ export function xcodeProjectAddNse(
           iPhoneDeploymentTarget ?? IPHONEOS_DEPLOYMENT_TARGET;
         buildSettingsObj.TARGETED_DEVICE_FAMILY = TARGETED_DEVICE_FAMILY;
         buildSettingsObj.CODE_SIGN_ENTITLEMENTS = `${NSE_TARGET_NAME}/${NSE_TARGET_NAME}.entitlements`;
-        buildSettingsObj.CODE_SIGN_STYLE = 'Automatic';
+        buildSettingsObj.CODE_SIGN_STYLE = "Automatic";
       }
     }
 
     // Add development teams to both your target and the original project
-    xcodeProject.addTargetAttribute('DevelopmentTeam', devTeam, nseTarget);
-    xcodeProject.addTargetAttribute('DevelopmentTeam', devTeam);
+    xcodeProject.addTargetAttribute("DevelopmentTeam", devTeam, nseTarget);
+    xcodeProject.addTargetAttribute("DevelopmentTeam", devTeam);
 
     fs.writeFileSync(projPath, xcodeProject.writeSync());
   });
